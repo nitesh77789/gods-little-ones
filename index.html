@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>God's Little Ones</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #e0f7fa; /* Light cyan background */
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h1, h2 {
+      color: #00796b; /* Teal color for headings */
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #00796b; /* Teal background */
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004d40; /* Darker teal on hover */
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    /* Styling for the donation section */
+    .donation-option {
+      background-color: #a5d6a7; /* Light green for donation options */
+      margin: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .donation-option:hover {
+      background-color: #66bb6a; /* Darker green on hover */
+    }
+
+    .logout-btn {
+      float: right;
+      margin: 10px;
+      background-color: #dc3545; /* Red color for logout */
+    }
+
+    #thank-you {
+      color: #4caf50; /* Green color for thank you message */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to God's Little Ones</h1>
+    
+    <!-- Sign Up and Login Section -->
+    <div id="auth-section">
+      <h2>Sign Up</h2>
+      <form id="signup-form">
+        <input type="text" id="signup-username" placeholder="Enter Username" required>
+        <input type="password" id="signup-password" placeholder="Enter Password" required>
+        <button type="button" onclick="signUp()">Sign Up</button>
+      </form>
+
+      <h2>Log In</h2>
+      <form id="login-form">
+        <input type="text" id="login-username" placeholder="Enter Username" required>
+        <input type="password" id="login-password" placeholder="Enter Password" required>
+        <button type="button" onclick="logIn()">Log In</button>
+      </form>
+    </div>
+
+    <!-- Donation Section -->
+    <div id="donation-section" style="display:none;">
+      <button class="logout-btn" onclick="logout()">Logout</button>
+      <h2>Choose what you want to donate:</h2>
+      <div>
+        <div class="donation-option" onclick="showForm('Books')">Books</div>
+        <div class="donation-option" onclick="showForm('Food')">Food</div>
+        <div class="donation-option" onclick="showForm('Toys')">Toys</div>
+        <div class="donation-option" onclick="showForm('Money')">Money</div>
+        <div class="donation-option" onclick="showForm('Clothes')">Clothes</div>
+      </div>
+      
+      <form id="donation-form" style="display:none;">
+        <h3 id="donation-type"></h3>
+        <input type="text" id="donor-name" placeholder="Enter Your Name" required>
+        <input type="text" id="donor-contact" placeholder="Enter Your Contact Number" required>
+        <textarea id="donor-address" placeholder="Enter Your Address" required></textarea>
+        <input type="number" id="donation-quantity" placeholder="Enter Quantity" required>
+        <textarea id="donation-details" placeholder="Enter donation details" required></textarea>
+        <button type="button" onclick="submitDonation()">Donate</button>
+      </form>
+      
+      <p id="thank-you" style="display:none;">Thank you for your generous donation!</p>
+    </div>
+  </div>
+
+  <script>
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const donations = JSON.parse(localStorage.getItem('donations')) || [];
+
+    // Sign Up Function
+    function signUp() {
+      const username = document.getElementById('signup-username').value;
+      const password = document.getElementById('signup-password').value;
+
+      if (!username || !password) {
+        alert('Please fill all fields!');
+        return;
+      }
+
+      if (users.find(user => user.username === username)) {
+        alert('Username already exists! Please log in.');
+        return;
+      }
+
+      users.push({ username, password });
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Sign Up successful! Now log in.');
+    }
+
+    // Log In Function
+    function logIn() {
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+
+      const user = users.find(user => user.username === username && user.password === password);
+
+      if (user) {
+        alert('Login successful!');
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('donation-section').style.display = 'block';
+      } else {
+        alert('Invalid username or password! Please sign up first if you are a new user.');
+      }
+    }
+
+    // Logout Function
+    function logout() {
+      document.getElementById('auth-section').style.display = 'block';
+      document.getElementById('donation-section').style.display = 'none';
+    }
+
+    // Show Donation Form
+    function showForm(type) {
+      document.getElementById('donation-form').style.display = 'block';
+      document.getElementById('donation-type').innerText = You are donating: ${type};
+    }
+
+    // Submit Donation
+    function submitDonation() {
+      const type = document.getElementById('donation-type').innerText.replace('You are donating: ', '');
+      const name = document.getElementById('donor-name').value;
+      const contact = document.getElementById('donor-contact').value;
+      const address = document.getElementById('donor-address').value;
+      const quantity = document.getElementById('donation-quantity').value;
+      const details = document.getElementById('donation-details').value;
+
+      if (!name || !contact || !address || !quantity || !details) {
+        alert('Please fill all fields!');
+        return;
+      }
+
+      const donation = { type, name, contact, address, quantity, details };
+      donations.push(donation);
+      localStorage.setItem('donations', JSON.stringify(donations));
+
+      document.getElementById('donation-form').reset();
+      document.getElementById('donation-form').style.display = 'none';
+      document.getElementById('thank-you').style.display = 'block';
+
+      setTimeout(() => {
+        document.getElementById('thank-you').style.display = 'none';
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
